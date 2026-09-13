@@ -1,0 +1,65 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows you to trigger the build manually from the GitHub UI
+
+jobs:
+  build-android:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Web Dependencies
+        run: bun install
+
+      - name: Build Web Application
+        run: bun run build
+
+      - name: Install Capacitor
+        run: |
+          bun add @capacitor/core @capacitor/android
+          bun add -D @capacitor/cli
+
+      - name: Configure and Add Android Platform
+        run: |
+          # Create Capacitor config to map to your web build output directory
+          echo '{
+            "appId": "com.kinetic.fitness",
+            "appName": "Kinetic",
+            "webDir": "dist"
+          }' > capacitor.config.json
+          
+          # Initialize the Android project
+          npx cap add android
+          npx cap sync android
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kinetic-fitness-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
