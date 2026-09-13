@@ -1,0 +1,6 @@
+{
+  "name": "Physical Fitness & Workout Tracker",
+  "description": "Minimalist physical fitness app featuring stored workout plans for all experience levels, customizable routines, interactive workout timer with rest countdown, and detailed progress tracking statistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
